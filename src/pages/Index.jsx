@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Container, VStack, HStack, Box, Text, Button, Tabs, TabList, TabPanels, Tab, TabPanel, Table, Thead, Tbody, Tr, Th, Td, IconButton } from "@chakra-ui/react";
+import { Container, VStack, HStack, Box, Text, Button, Tabs, TabList, TabPanels, Tab, TabPanel, Table, Thead, Tbody, Tr, Th, Td, IconButton, Input } from "@chakra-ui/react";
 import { FaGoogle, FaFacebook, FaTiktok, FaPlus, FaTrash } from "react-icons/fa";
 
 const Index = () => {
@@ -15,6 +15,9 @@ const Index = () => {
     { id: 3, name: "Product 3", price: "$30" },
   ]);
 
+  const [editingAd, setEditingAd] = useState(null);
+  const [editingProduct, setEditingProduct] = useState(null);
+
   const addAd = (platform) => {
     const newAd = { id: Date.now(), product: products[0].name, budget: "$100" };
     setAds((prevAds) => ({
@@ -28,6 +31,17 @@ const Index = () => {
       ...prevAds,
       [platform]: prevAds[platform].filter((ad) => ad.id !== id),
     }));
+  };
+
+  const handleAdChange = (platform, id, field, value) => {
+    setAds((prevAds) => ({
+      ...prevAds,
+      [platform]: prevAds[platform].map((ad) => (ad.id === id ? { ...ad, [field]: value } : ad)),
+    }));
+  };
+
+  const handleProductChange = (id, field, value) => {
+    setProducts((prevProducts) => prevProducts.map((product) => (product.id === id ? { ...product, [field]: value } : product)));
   };
 
   return (
@@ -80,7 +94,11 @@ const Index = () => {
                         <Td>{ad.product}</Td>
                         <Td>{ad.budget}</Td>
                         <Td>
-                          <IconButton aria-label="Delete Ad" icon={<FaTrash />} colorScheme="red" onClick={() => removeAd(platform, ad.id)} />
+                          <HStack>
+                            <Input value={ad.product} onChange={(e) => handleAdChange(platform, ad.id, "product", e.target.value)} />
+                            <Input value={ad.budget} onChange={(e) => handleAdChange(platform, ad.id, "budget", e.target.value)} />
+                            <IconButton aria-label="Delete Ad" icon={<FaTrash />} colorScheme="red" onClick={() => removeAd(platform, ad.id)} />
+                          </HStack>
                         </Td>
                       </Tr>
                     ))}
@@ -106,8 +124,12 @@ const Index = () => {
               {products.map((product) => (
                 <Tr key={product.id}>
                   <Td>{product.id}</Td>
-                  <Td>{product.name}</Td>
-                  <Td>{product.price}</Td>
+                  <Td>
+                    <Input value={product.name} onChange={(e) => handleProductChange(product.id, "name", e.target.value)} />
+                  </Td>
+                  <Td>
+                    <Input value={product.price} onChange={(e) => handleProductChange(product.id, "price", e.target.value)} />
+                  </Td>
                 </Tr>
               ))}
             </Tbody>
